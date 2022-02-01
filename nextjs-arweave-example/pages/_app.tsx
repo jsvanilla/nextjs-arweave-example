@@ -1,16 +1,15 @@
-import '../styles/globals.css'
 import React, { useState, useEffect, useMemo } from 'react'
 import { ArjsProvider, useArjs } from 'arjs-react'
 
 function _App() {
   const  wallet  = useArjs();
   const permission = { permissions: ["SIGN_TRANSACTION"] }
-  const [textData, setKey] = useState('')
+  const [textData, setTextData] = useState('')
   const [requesting, setRequesting] = useState("Subir data a la permaweb");
   const [lastData, setLastData] = useState('')
 
 const activate = (connector:any, key:any) => wallet.connect(connector, key)
-const getTextData = (e:any) => { console.log(textData); setKey(e.target.value);}
+const getTextData = (e:any) => { console.log(textData); setTextData(e.target.value);}
 
 const postData = async () => {
   setRequesting("Requesting...")
@@ -20,6 +19,12 @@ const postData = async () => {
   let transaction1 = await wallet.transaction({
     data: textData
   }, key) 
+
+  // Transacción de AR token de la billetera actual a otra
+  /*let transaction1 = await wallet.transaction({
+    target: '1seRanklLU_1VTGkEk7P0xAwMJfA7owA1JHW5KyZKlY',
+    quantity: wallet.getArweave().ar.arToWinston('10.5')
+}, key); */
 
   // PASO 2 Firmar la transacción (una vez firmada no debe modificarse, de lo contrario no podrá subirse a la permaweb)
   await wallet.sign(transaction1) 
@@ -44,8 +49,6 @@ const [address, setAddress] = useState("Requesting...");
 
 wallet.ready(() => {
   if(wallet.status == "connected")(async () => {
-    console.log(wallet)
-    console.log(wallet.getArweave())
     setBalance(wallet.getArweave().ar.winstonToAr( await wallet.getBalance("self")))
     setAddress(await wallet.getAddress())
   })()
